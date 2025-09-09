@@ -9,52 +9,28 @@ import Image from 'next/image';
 const projects = [
   {
     title: "E-Commerce Platform",
-    description: "A modern e-commerce platform built with Next.js, featuring real-time inventory management, secure payment processing, and responsive design.",
+    description: "A comprehensive e-commerce platform built with React for the frontend and Express for the backend, featuring secure payment integration with Midtrans.",
     image: "/img/ecomm.png",
-    tags: ["Next.js", "TypeScript", "Stripe", "Tailwind CSS"],
-    githubUrl: "#",
+    tags: ["React", "MongoDB", "Tailwind CSS"],
+    githubUrl: "https://github.com/alchemn/front-ecom",
     liveUrl: "#"
   },
   {
     title: "Job Find App",
-    description: "A collaborative task management application with real-time updates, drag-and-drop functionality, and team collaboration features.",
+    description: "A simple job search application developed using Next.js and Tailwind CSS, designed for efficient job discovery.",
     image: "/img/classi.png",
-    tags: ["React", "Node.js", "Socket.io", "MongoDB"],
-    githubUrl: "#",
-    liveUrl: "#"
+    tags: ["Next.js", "Tailwinds","MongoDB"],
+    githubUrl: "https://github.com/alchemn/lokerapp",
+    liveUrl: "https://lokerapp-iota.vercel.app/"
   },
   {
     title: "Financial Track With N8N",
-    description: "A beautiful weather dashboard with interactive maps, detailed forecasts, and location-based weather alerts using modern APIs.",
+    description: "A financial tracking application leveraging N8N for automated financial reporting, with integrated Midtrans payment processing.",
     image: "/img/ftt.png",
     tags: ["Next.js", "Shadcn", "N8N", "Midtrans"],
-    githubUrl: "#",
+    githubUrl: "https://github.com/alchemn/n8n-finance-tracking",
     liveUrl: "#"
   },
-  {
-    title: "Social Media Analytics",
-    description: "A comprehensive analytics platform for social media managers with real-time data visualization and reporting features.",
-    image: "https://placehold.co/400x250",
-    tags: ["React", "D3.js", "Express", "PostgreSQL"],
-    githubUrl: "#",
-    liveUrl: "#"
-  },
-  {
-    title: "Portfolio Website",
-    description: "A responsive portfolio website with modern animations, dark mode support, and optimized performance.",
-    image: "https://placehold.co/400x250",
-    tags: ["Next.js", "Framer Motion", "Tailwind CSS", "Vercel"],
-    githubUrl: "#",
-    liveUrl: "#"
-  },
-  {
-    title: "Blog Platform",
-    description: "A modern blogging platform with markdown support, SEO optimization, and content management capabilities.",
-    image: "https://placehold.co/400x250",
-    tags: ["Next.js", "MDX", "Prisma", "MySQL"],
-    githubUrl: "#",
-    liveUrl: "#"
-  }
 ];
 
 export default function Projects() {
