@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface CustomWindow extends Window {
+  AudioContext?: typeof AudioContext;
   webkitAudioContext?: typeof AudioContext;
 }
 
@@ -12,14 +13,15 @@ const WeddingPage = () => {
   const btnNoRef = useRef<HTMLButtonElement>(null);
   let clickAttempts = 0;
 
-  useEffect(() => {
-    createHearts();
-  }, []);
-
   const playClickSound = useCallback(() => {
     try {
       const customWindow = window as CustomWindow;
-      const audioContext = new (customWindow.AudioContext || customWindow.webkitAudioContext)();
+      const AudioContext = customWindow.AudioContext || customWindow.webkitAudioContext;
+      if (!AudioContext) {
+        console.log('Audio not available');
+        return;
+      }
+      const audioContext = new AudioContext();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
@@ -39,10 +41,43 @@ const WeddingPage = () => {
     }
   }, []);
 
+  const createHearts = useCallback(() => {
+    const container = document.getElementById('backgroundHearts');
+    if (container) {
+      container.innerHTML = '';
+      const hearts = ['💕', '💗', '💖', '💝', '❤️', '💓', '🥰', '✨'];
+      for (let i = 0; i < 15; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+        heart.style.left = `${Math.random() * 100}%`;
+        heart.style.animationDelay = `${Math.random() * 8}s`;
+        heart.style.animationDuration = `${6 + Math.random() * 4}s`;
+        container.appendChild(heart);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    createHearts();
+  }, [createHearts]);
+
   const toggleTheme = () => {
     setIsFunMode(!isFunMode);
     playClickSound();
   };
+  
+  const closeModal = useCallback(() => {
+    setModalOpen(false);
+    playClickSound();
+    const btnNo = btnNoRef.current;
+    if (btnNo) {
+      btnNo.style.position = '';
+      btnNo.style.left = '';
+      btnNo.style.top = '';
+      btnNo.style.transform = '';
+    }
+  }, [playClickSound]);
   
   let isMoving = false;
   const moveButton = useCallback(() => {
@@ -86,35 +121,6 @@ const WeddingPage = () => {
       setModalOpen(true);
       clickAttempts = 0;
       playClickSound();
-    }
-  };
-
-  const closeModal = useCallback(() => {
-    setModalOpen(false);
-    playClickSound();
-    const btnNo = btnNoRef.current;
-    if (btnNo) {
-      btnNo.style.position = '';
-      btnNo.style.left = '';
-      btnNo.style.top = '';
-      btnNo.style.transform = '';
-    }
-  }, [playClickSound]);
-
-  const createHearts = () => {
-    const container = document.getElementById('backgroundHearts');
-    if (container) {
-      container.innerHTML = '';
-      const hearts = ['💕', '💗', '💖', '💝', '❤️', '💓', '🥰', '✨'];
-      for (let i = 0; i < 15; i++) {
-        const heart = document.createElement('div');
-        heart.className = 'heart';
-        heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-        heart.style.left = `${Math.random() * 100}%`;
-        heart.style.animationDelay = `${Math.random() * 8}s`;
-        heart.style.animationDuration = `${6 + Math.random() * 4}s`;
-        container.appendChild(heart);
-      }
     }
   };
 
