@@ -31,6 +31,14 @@ const projects = [
     githubUrl: "https://github.com/alchemn/n8n-finance-tracking",
     liveUrl: "#"
   },
+  {
+    tittle: "Virtual Asistant BPJS",
+    description: "Virtual Asistant Build with NextJS using NLP and Tensor For Face Detection",
+    image: "/img/va.png",
+    tags: ["NextJS", "TailwindsCSS", "Tensorflow", "NLP"],
+    githubUrl: "https://github.com/alchemn/va-bpjs",
+    liveUrl: "https://va-bpjs.vercel.app/"
+  }
 ];
 
 export default function Projects() {
