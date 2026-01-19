@@ -11,6 +11,7 @@ const WeddingPage = () => {
   const [isFunMode, setIsFunMode] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const btnNoRef = useRef<HTMLButtonElement>(null);
+  const isMovingRef = useRef(false);
   let clickAttempts = 0;
 
   const playClickSound = useCallback(() => {
@@ -36,7 +37,7 @@ const WeddingPage = () => {
 
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.1);
-    } catch (_e) {
+    } catch (error) {
       console.log('Audio not available');
     }
   }, []);
@@ -79,13 +80,12 @@ const WeddingPage = () => {
     }
   }, [playClickSound]);
   
-  let isMoving = false;
   const moveButton = useCallback(() => {
-      if (isMoving) return;
+      if (isMovingRef.current) return;
 
       const btnNo = btnNoRef.current;
       if (!btnNo) return;
-      
+
       const container = btnNo.parentElement as HTMLElement;
       if(!container) return;
 
@@ -106,11 +106,11 @@ const WeddingPage = () => {
           btnNo.style.transform = `translate(${newX - btnRect.left + containerRect.left}px, ${newY - btnRect.top + containerRect.top}px)`;
       }
 
-      isMoving = true;
+      isMovingRef.current = true;
       playClickSound();
 
       setTimeout(() => {
-          isMoving = false;
+          isMovingRef.current = false;
       }, 300);
   }, [playClickSound]);
 

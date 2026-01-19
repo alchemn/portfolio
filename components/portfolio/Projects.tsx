@@ -6,7 +6,16 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink, Github } from 'lucide-react';
 import Image from 'next/image';
 
-const projects = [
+interface Project {
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  githubUrl: string;
+  liveUrl: string;
+}
+
+const projects: Project[] = [
   {
     title: "E-Commerce Platform",
     description: "A comprehensive e-commerce platform built with React for the frontend and Express for the backend, featuring secure payment integration with Midtrans.",
@@ -32,7 +41,7 @@ const projects = [
     liveUrl: "#"
   },
   {
-    tittle: "Virtual Asistant BPJS",
+    title: "Virtual Asistant BPJS",
     description: "Virtual Asistant Build with NextJS using NLP and Tensor For Face Detection",
     image: "/img/va.png",
     tags: ["NextJS", "TailwindsCSS", "Tensorflow", "NLP"],
@@ -112,18 +121,22 @@ export default function Projects() {
                       variant="outline"
                       size="sm"
                       className="flex-1 border-primary/20 text-primary hover:bg-primary/10 hover:text-primary-foreground transition-all duration-300"
+                      onClick={() => window.open(project.githubUrl, '_blank')}
                     >
                       <Github className="w-4 h-4 mr-2" />
                       Code
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 border-primary/20 text-primary hover:bg-primary/10 hover:text-primary-foreground transition-all duration-300"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Live Demo
-                    </Button>
+                    {project.liveUrl !== "#" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-primary/20 text-primary hover:bg-primary/10 hover:text-primary-foreground transition-all duration-300"
+                        onClick={() => window.open(project.liveUrl, '_blank')}
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Live Demo
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
