@@ -1,6 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+interface CustomWindow extends Window {
+  webkitAudioContext?: typeof AudioContext;
+}
 
 const WeddingPage = () => {
   const [isFunMode, setIsFunMode] = useState(false);
@@ -12,14 +16,10 @@ const WeddingPage = () => {
     createHearts();
   }, []);
 
-  const toggleTheme = () => {
-    setIsFunMode(!isFunMode);
-    playClickSound();
-  };
-
-  const playClickSound = () => {
+  const playClickSound = useCallback(() => {
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const customWindow = window as CustomWindow;
+      const audioContext = new (customWindow.AudioContext || customWindow.webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
@@ -34,13 +34,18 @@ const WeddingPage = () => {
 
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.1);
-    } catch (e) {
+    } catch (_e) {
       console.log('Audio not available');
     }
+  }, []);
+
+  const toggleTheme = () => {
+    setIsFunMode(!isFunMode);
+    playClickSound();
   };
   
   let isMoving = false;
-  const moveButton = () => {
+  const moveButton = useCallback(() => {
       if (isMoving) return;
 
       const btnNo = btnNoRef.current;
@@ -72,7 +77,7 @@ const WeddingPage = () => {
       setTimeout(() => {
           isMoving = false;
       }, 300);
-  }
+  }, [playClickSound]);
 
 
   const handleNoClick = () => {
@@ -84,7 +89,7 @@ const WeddingPage = () => {
     }
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setModalOpen(false);
     playClickSound();
     const btnNo = btnNoRef.current;
@@ -94,11 +99,12 @@ const WeddingPage = () => {
       btnNo.style.top = '';
       btnNo.style.transform = '';
     }
-  };
+  }, [playClickSound]);
 
   const createHearts = () => {
     const container = document.getElementById('backgroundHearts');
     if (container) {
+      container.innerHTML = '';
       const hearts = ['💕', '💗', '💖', '💝', '❤️', '💓', '🥰', '✨'];
       for (let i = 0; i < 15; i++) {
         const heart = document.createElement('div');
@@ -133,7 +139,7 @@ const WeddingPage = () => {
         btnNo.removeEventListener('touchstart', moveButton);
       }
     };
-  }, []);
+  }, [moveButton]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -143,7 +149,7 @@ const WeddingPage = () => {
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [modalOpen]);
+  }, [modalOpen, closeModal]);
 
   return (
     <>
