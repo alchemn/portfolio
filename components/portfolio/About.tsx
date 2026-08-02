@@ -1,114 +1,78 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Code, Palette, Smartphone, Target } from 'lucide-react';
+import { Code, Layout, Zap, Database } from 'lucide-react';
+
+const skills = [
+  { icon: Code, title: 'Frontend', description: 'React, Next.js, TypeScript' },
+  { icon: Database, title: 'Backend', description: 'Node.js, APIs, Databases' },
+  { icon: Layout, title: 'UI/UX', description: 'Figma, design systems' },
+  { icon: Zap, title: 'Performance', description: 'Fast, accessible, SEO' },
+];
+
+const stats = [
+  { value: '6+', label: 'Projects' },
+  { value: '3', label: 'Live products' },
+  { value: '5+', label: 'Technologies' },
+];
 
 export default function About() {
-  const skills = [
-    {
-      icon: Code,
-      title: "Frontend Development",
-      description: "React, Next.js, TypeScript, Tailwind CSS"
-    },
-    {
-      icon: Palette,
-      title: "UI/UX Design",
-      description: "Figma, Adobe XD, User Research, Prototyping"
-    },
-    {
-      icon: Smartphone,
-      title: "Responsive Design",
-      description: "Mobile-first approach, Cross-platform compatibility"
-    },
-    {
-      icon: Target,
-      title: "Performance Optimization",
-      description: "Speed optimization, SEO best practices"
-    }
-  ];
-
   return (
-    <section className="py-20 relative bg-background">
-      {/* Neon accent line */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
-      
-      <div className="max-w-6xl mx-auto px-4">
+    <section id="about" className="py-24 sm:py-28">
+      <div className="max-w-5xl mx-auto px-5">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: '-80px' }}
+          className="grid md:grid-cols-2 gap-12 items-start"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-            About Me
-          </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto rounded-full"></div>
-        </motion.div>
+          <div>
+            <p className="text-sm font-medium text-primary mb-3">About Me</p>
+            <h2 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
+              Turning Ideas into Reality
+            </h2>
+            <div className="mt-6 space-y-4 text-muted-foreground leading-relaxed">
+              <p>
+                I&apos;m Ardiansyah Putra, a Full Stack Developer based in Banda
+                Aceh. I like turning ideas into real, working products — handling
+                everything from interface design to the code that powers it.
+              </p>
+              <p>
+                I focus on clean, maintainable code and interfaces that feel
+                effortless to use. Beyond that, I&apos;m always exploring new tools
+                and shipping things people actually use.
+              </p>
+            </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-          >
-            <h3 className="text-2xl font-semibold mb-6 text-foreground">
-              Passionate About Creating Digital Experiences
-            </h3>
-            <p className="text-muted-foreground mb-6 leading-relaxed">
-              Hi! I&apos;m an aspiring Full Stack Developer with a strong passion for web development. I&apos;m dedicated to learning and implementing modern web technologies to create responsive and user-friendly applications. Through self-study and hands-on project experience, I&apos;m constantly expanding my skills in web development.
-            </p>
-            <p className="text-muted-foreground mb-6 leading-relaxed">
-              My approach combines technical expertise with creative problem-solving, ensuring that every project I work on is both innovative and practical. I believe in writing clean, maintainable code and creating designs that are both aesthetically pleasing and highly functional.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              When I&apos;m not coding or designing, you can find me exploring new technologies, contributing to open-source projects, or sharing my knowledge with the developer community.
-            </p>
-          </motion.div>
+            <div className="mt-10 grid grid-cols-3 gap-6">
+              {stats.map((stat) => (
+                <div key={stat.label}>
+                  <div className="text-3xl sm:text-4xl font-bold text-gradient tracking-tight">
+                    {stat.value}
+                  </div>
+                  <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            viewport={{ once: true }}
-            className="grid grid-cols-2 gap-6"
-          >
-            {skills.map((skill, index) => (
-              <Card key={index} className="bg-card/50 border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
-                <CardContent className="p-6 text-center">
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-12 h-12 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center"
-                  >
-                    <skill.icon className="w-6 h-6 text-primary" />
-                  </motion.div>
-                  <h4 className="font-semibold mb-2 text-foreground">{skill.title}</h4>
-                  <p className="text-sm text-muted-foreground">{skill.description}</p>
-                </CardContent>
-              </Card>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {skills.map((skill) => (
+              <div
+                key={skill.title}
+                className="group rounded-3xl border border-border bg-card p-6 card-glow transition-all duration-300"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <skill.icon className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-semibold mb-1">{skill.title}</h3>
+                <p className="text-sm text-muted-foreground">{skill.description}</p>
+              </div>
             ))}
-          </motion.div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-primary/10 rounded-full border border-primary/20">
-            <span className="text-primary font-medium">Always learning, always growing</span>
-            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
           </div>
         </motion.div>
       </div>
-
-      {/* Bottom neon accent line */}
-      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-400 to-transparent"></div>
     </section>
   );
 }
