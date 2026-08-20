@@ -1,126 +1,109 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, ArrowUpRight } from 'lucide-react';
 
 const contactInfo = [
-  {
-    icon: Mail,
-    title: 'Email',
-    value: 'ardiansyah.ap8@gmail.com',
-    link: 'mailto:ardiansyah.ap8@gmail.com',
-  },
-  {
-    icon: Phone,
-    title: 'Phone',
-    value: '+6282276330774',
-    link: 'tel:+6282276330774',
-  },
-  {
-    icon: MapPin,
-    title: 'Location',
-    value: 'Banda Aceh, Indonesia',
-    link: '#',
-  },
+  { icon: Mail, label: 'Email', value: 'ardiansyah.ap8@gmail.com', href: 'mailto:ardiansyah.ap8@gmail.com' },
+  { icon: Phone, label: 'Phone', value: '+6282276330774', href: 'tel:+6282276330774' },
+  { icon: MapPin, label: 'Location', value: 'Banda Aceh, Indonesia', href: null },
 ];
+
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const } },
+};
 
 export default function Contact() {
   return (
-    <section id="contact" className="py-24 sm:py-28">
+    <section id="contact" className="py-20">
       <div className="max-w-5xl mx-auto px-5">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true, margin: '-80px' }}
-          className="grid lg:grid-cols-5 gap-10 items-start"
-        >
-          {/* Info */}
-          <div className="lg:col-span-2">
-            <p className="text-sm font-medium text-primary mb-3">Get In Touch</p>
-            <h2 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight">
-              Let&apos;s Work Together
-            </h2>
-            <p className="mt-4 text-muted-foreground leading-relaxed">
-              I&apos;m open to freelance work and collaboration. Tell me about your
-              idea — I usually reply within a day.
+        <div className="grid lg:grid-cols-2 gap-10">
+          {/* Left */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-4">Contact</h2>
+            <p className="text-sm text-white/40 leading-relaxed max-w-sm mb-6">
+              Open untuk freelance dan kolaborasi. Ceritakan idemu — saya biasanya balas dalam sehari.
             </p>
 
-            <div className="mt-8 space-y-4">
+            <motion.div
+              variants={container}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="space-y-2"
+            >
               {contactInfo.map((info) => (
-                <a
-                  key={info.title}
-                  href={info.link}
-                  className="group flex items-center gap-4 text-sm hover:text-foreground transition-colors"
+                <motion.a
+                  key={info.label}
+                  variants={fadeUp}
+                  href={info.href ?? '#'}
+                  className="group flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.03] transition-all duration-300"
                 >
-                  <span className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
-                    <info.icon className="w-5 h-5 text-primary" />
-                  </span>
-                  <span>
-                    <span className="block text-muted-foreground">{info.title}</span>
-                    <span className="font-medium">{info.value}</span>
-                  </span>
-                </a>
+                  <info.icon className="w-4 h-4 text-white/30 group-hover:text-white/50 transition-colors" />
+                  <span className="flex-1 text-sm text-white/60">{info.value}</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-white/15 group-hover:text-white/40 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                </motion.a>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          {/* Form */}
+          {/* Right — Form */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            viewport={{ once: true, margin: '-60px' }}
-            className="lg:col-span-3"
+            transition={{ duration: 0.5, delay: 0.1 }}
+            viewport={{ once: true }}
           >
             <form
-              className="rounded-3xl border border-border bg-card p-6 sm:p-8 space-y-5 card-glow"
+              className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-5 space-y-4"
               onSubmit={(e) => e.preventDefault()}
             >
-              <div className="grid sm:grid-cols-2 gap-5">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="name" className="text-sm">Name</Label>
-                  <Input
-                    id="name"
+                  <label className="text-[10px] text-white/30 uppercase tracking-wider mb-1.5 block">Name</label>
+                  <input
                     type="text"
-                    placeholder="Your name"
-                    className="mt-1.5 bg-background border-border/70"
+                    placeholder="Nama"
+                    className="w-full px-3 py-2 text-sm rounded-lg bg-white/[0.03] border border-white/[0.05] text-white placeholder:text-white/20 focus:border-white/[0.15] focus:outline-none transition-colors"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email" className="text-sm">Email</Label>
-                  <Input
-                    id="email"
+                  <label className="text-[10px] text-white/30 uppercase tracking-wider mb-1.5 block">Email</label>
+                  <input
                     type="email"
-                    placeholder="you@example.com"
-                    className="mt-1.5 bg-background border-border/70"
+                    placeholder="Email"
+                    className="w-full px-3 py-2 text-sm rounded-lg bg-white/[0.03] border border-white/[0.05] text-white placeholder:text-white/20 focus:border-white/[0.15] focus:outline-none transition-colors"
                   />
                 </div>
               </div>
-
               <div>
-                <Label htmlFor="message" className="text-sm">Message</Label>
-                <Textarea
-                  id="message"
-                  placeholder="Tell me about your project..."
-                  rows={5}
-                  className="mt-1.5 bg-background border-border/70 resize-none"
+                <label className="text-[10px] text-white/30 uppercase tracking-wider mb-1.5 block">Message</label>
+                <textarea
+                  rows={4}
+                  placeholder="Ceritakan projectmu..."
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-white/[0.03] border border-white/[0.05] text-white placeholder:text-white/20 focus:border-white/[0.15] focus:outline-none resize-none transition-colors"
                 />
               </div>
-
-              <Button
+              <button
                 type="submit"
-                className="w-full bg-primary text-white hover:bg-primary/90 transition-colors"
+                className="w-full py-2.5 text-sm font-medium rounded-lg bg-white text-black hover:bg-white/90 active:scale-[0.99] transition-all"
               >
-                Send Message
-              </Button>
+                Send
+              </button>
             </form>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

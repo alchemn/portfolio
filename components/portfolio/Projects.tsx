@@ -1,7 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { ArrowUpRight, Github } from 'lucide-react';
+import { useRef, type MouseEvent } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { ExternalLink, Github } from 'lucide-react';
 import Image from 'next/image';
 
 interface Project {
@@ -9,195 +10,198 @@ interface Project {
   description: string;
   image: string;
   tags: string[];
-  githubUrl: string | null;
-  liveUrl: string | null;
+  url: string | null;
+  github: string | null;
 }
 
 const projects: Project[] = [
   {
+    title: 'Ruang Konten',
+    description: 'Platform konten kreator untuk mengelola dan mempublikasikan konten digital',
+    image: '/img/ruangkonten.png',
+    tags: ['React', 'TanStack', 'TypeScript'],
+    url: 'https://ruangkonten.my.id',
+    github: null,
+  },
+  {
     title: 'CPNS Hub',
-    description:
-      'Platform latihan soal CPNS dengan simulasi tryout TWK, TIU, dan TKP — membantu calon ASN berlatih dan memantau progres skor.',
+    description: 'Platform latihan soal CPNS dengan simulasi tryout TWK, TIU, dan TKP',
     image: '/img/cpns.png',
-    tags: ['Next.js', 'Tailwind CSS'],
-    githubUrl: null,
-    liveUrl: 'https://cpnshub.xyz',
+    tags: ['React', 'TanStack', 'Tailwind'],
+    url: 'https://cpnshub.xyz',
+    github: null,
   },
   {
     title: 'NCO Store',
-    description:
-      'Platform PPOB untuk pembayaran token listrik, pulsa, paket data, dan tagihan lainnya — lengkap dengan manajemen transaksi.',
+    description: 'Platform PPOB untuk pembayaran token listrik, pulsa, dan tagihan',
     image: '/img/nco.png',
-    tags: ['Next.js', 'PPOB', 'Payment'],
-    githubUrl: null,
-    liveUrl: 'https://ncostore.my.id',
-  },
-  {
-    title: 'E-Commerce Platform',
-    description:
-      'Platform e-commerce dengan React dan Express, termasuk integrasi pembayaran Midtrans.',
-    image: '/img/ecomm.png',
-    tags: ['React', 'MongoDB', 'Tailwind CSS'],
-    githubUrl: 'https://github.com/alchemn/front-ecom',
-    liveUrl: null,
-  },
-  {
-    title: 'Job Find App',
-    description:
-      'Aplikasi pencarian lowongan kerja yang dibangun dengan Next.js dan Tailwind CSS.',
-    image: '/img/classi.png',
-    tags: ['Next.js', 'Tailwind', 'MongoDB'],
-    githubUrl: 'https://github.com/alchemn/lokerapp',
-    liveUrl: 'https://lokerapp-iota.vercel.app/',
-  },
-  {
-    title: 'Financial Track with N8N',
-    description:
-      'Aplikasi pencatatan keuangan memanfaatkan N8N untuk laporan otomatis, dengan pembayaran Midtrans.',
-    image: '/img/ftt.png',
-    tags: ['Next.js', 'Shadcn', 'N8N', 'Midtrans'],
-    githubUrl: 'https://github.com/alchemn/n8n-finance-tracking',
-    liveUrl: null,
+    tags: ['React', 'TanStack', 'Payment'],
+    url: 'https://ncostore.my.id',
+    github: null,
   },
   {
     title: 'Virtual Assistant BPJS',
-    description:
-      'Virtual assistant berbasis Next.js dengan NLP dan deteksi wajah TensorFlow.',
+    description: 'VA berbasis NLP dengan face detection TensorFlow.js',
     image: '/img/va.png',
     tags: ['Next.js', 'TensorFlow', 'NLP'],
-    githubUrl: 'https://github.com/alchemn/va-bpjs',
-    liveUrl: 'https://va-bpjs.vercel.app/',
+    url: 'https://va-bpjs.vercel.app',
+    github: 'https://github.com/alchemn/va-bpjs',
+  },
+  {
+    title: 'E-Commerce Platform',
+    description: 'E-commerce dengan integrasi pembayaran Midtrans',
+    image: '/img/ecomm.png',
+    tags: ['React', 'Express', 'MongoDB'],
+    url: null,
+    github: 'https://github.com/alchemn/front-ecom',
+  },
+  {
+    title: 'Job Find App',
+    description: 'Aplikasi pencarian lowongan kerja',
+    image: '/img/classi.png',
+    tags: ['Next.js', 'Tailwind', 'MongoDB'],
+    url: 'https://lokerapp-iota.vercel.app',
+    github: 'https://github.com/alchemn/lokerapp',
   },
 ];
 
-function hostname(url: string) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return url;
-  }
-}
-
-// Blue-family colors per tag — matching plugin's colored chip style
 const tagColors: Record<string, string> = {
-  'Next.js': 'bg-blue-500/10 text-blue-400',
-  'Tailwind CSS': 'bg-cyan-500/10 text-cyan-400',
-  Tailwind: 'bg-cyan-500/10 text-cyan-400',
-  React: 'bg-sky-500/10 text-sky-400',
-  MongoDB: 'bg-green-500/10 text-green-400',
-  PPOB: 'bg-violet-500/10 text-violet-400',
-  Payment: 'bg-emerald-500/10 text-emerald-400',
-  Shadcn: 'bg-slate-500/10 text-slate-300',
-  N8N: 'bg-orange-500/10 text-orange-400',
-  Midtrans: 'bg-teal-500/10 text-teal-400',
-  TensorFlow: 'bg-amber-500/10 text-amber-400',
-  NLP: 'bg-pink-500/10 text-pink-400',
+  'React': 'text-cyan-400',
+  'TanStack': 'text-red-400',
+  'Next.js': 'text-blue-400',
+  'Tailwind': 'text-cyan-400',
+  'TypeScript': 'text-blue-400',
+  'TensorFlow': 'text-amber-400',
+  'NLP': 'text-pink-400',
+  'Express': 'text-green-400',
+  'MongoDB': 'text-green-400',
+  'Payment': 'text-emerald-400',
 };
-const tagClass = (tag: string) => tagColors[tag] ?? 'bg-primary/10 text-primary';
+
+/* ═══════════════════════════════════════════
+   3D Tilt Card with Shine Effect
+   ═══════════════════════════════════════════ */
+function TiltCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const springConfig = { stiffness: 150, damping: 20, mass: 0.5 };
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [8, -8]), springConfig);
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-8, 8]), springConfig);
+  const scale = useSpring(1, { stiffness: 200, damping: 20 });
+  const glareX = useSpring(useTransform(x, [-0.5, 0.5], [100, -100]), springConfig);
+  const glareOpacity = useSpring(0, { stiffness: 200, damping: 20 });
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const xPos = (e.clientX - rect.left - rect.width / 2) / rect.width;
+    const yPos = (e.clientY - rect.top - rect.height / 2) / rect.height;
+    x.set(xPos);
+    y.set(yPos);
+    scale.set(1.02);
+    glareOpacity.set(0.15);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+    scale.set(1);
+    glareOpacity.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ rotateX, rotateY, scale }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+    >
+      <div className="relative overflow-hidden">
+        {children}
+        {/* Glare effect */}
+        <motion.div
+          style={{ opacity: glareOpacity }}
+          className="absolute inset-0 pointer-events-none rounded-xl"
+        >
+          <div
+            className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent"
+            style={{ transform: `translateX(${glareX}%)` }}
+          />
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
 
 export default function Projects() {
   return (
-    <section id="projects" className="py-24 sm:py-28">
+    <section id="projects" className="py-20">
       <div className="max-w-5xl mx-auto px-5">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true, margin: '-80px' }}
-          className="mb-14"
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="mb-8"
         >
-          <p className="text-sm font-medium text-primary mb-3">Selected work</p>
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">
-            Featured Projects
-          </h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Projects</h2>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ perspective: '1200px' }}>
           {projects.map((project, index) => (
             <motion.div
               key={project.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: (index % 2) * 0.08 }}
-              viewport={{ once: true, margin: '-60px' }}
-              className={index === 0 ? 'md:col-span-2' : ''}
+              initial={{ opacity: 0, y: 30, rotateX: 5 }}
+              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              viewport={{ once: true, margin: '-40px' }}
             >
-              <a
-                href={project.liveUrl ?? project.githubUrl ?? '#'}
-                target={project.liveUrl || project.githubUrl ? '_blank' : undefined}
-                rel="noopener noreferrer"
-                className="group block rounded-3xl border border-border bg-card overflow-hidden card-glow transition-all duration-300 h-full"
-              >
-                {/* macOS-style browser mockup */}
-                <div className={`p-4 sm:p-6 ${index === 0 ? 'bg-gradient-to-b from-primary/10 to-transparent' : ''}`}>
-                  <div className={`relative overflow-hidden rounded-2xl border border-white/10 bg-foreground/5 shadow-2xl shadow-black/40 ${index === 0 ? 'animate-float' : ''}`}>
-                    {/* Toolbar */}
-                    <div className="flex items-center gap-3 px-3 sm:px-4 py-2.5 bg-background/40 backdrop-blur-md border-b border-white/5">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-3 h-3 rounded-full bg-[#FF5F57]" />
-                        <span className="w-3 h-3 rounded-full bg-[#FEBC2E]" />
-                        <span className="w-3 h-3 rounded-full bg-[#28C840]" />
-                      </div>
-                      <div className="flex-1 flex justify-center min-w-0">
-                        <span className="flex items-center gap-1.5 max-w-full px-3 py-1 rounded-md bg-black/20 text-[11px] text-muted-foreground truncate">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
-                          {project.liveUrl ? hostname(project.liveUrl) : project.title.toLowerCase().replace(/\s+/g, '-')}
-                        </span>
+              <TiltCard>
+                <a
+                  href={project.url ?? project.github ?? '#'}
+                  target={project.url || project.github ? '_blank' : undefined}
+                  rel="noopener noreferrer"
+                  className="group block rounded-xl border border-white/[0.06] bg-gradient-to-b from-white/[0.04] to-white/[0.01] overflow-hidden hover:border-white/[0.12] transition-colors duration-300"
+                >
+                  <div className="relative aspect-video overflow-hidden">
+                    <Image
+                      src={project.image}
+                      alt={project.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                    
+                    {/* Hover overlay with icon */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 group-hover:scale-110 transition-transform duration-300">
+                        <ExternalLink className="w-4 h-4 text-white" />
                       </div>
                     </div>
-                    {/* Screen */}
-                    <div className="relative aspect-[16/9] overflow-hidden">
-                      <Image
-                        src={project.image}
-                        alt={`${project.title} screenshot`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
-                      />
+
+                    {/* Gradient border bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  </div>
+
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-sm font-semibold text-white/90 group-hover:text-white transition-colors">{project.title}</h3>
+                      {project.github && <Github className="w-3.5 h-3.5 text-white/15" />}
                     </div>
-                  </div>
-                </div>
-
-                <div className="px-6 sm:px-8 pb-8 -mt-1">
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-xl font-semibold tracking-tight">
-                      {project.title}
-                    </h3>
-                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-400/10 rounded-full px-3 py-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      {project.liveUrl ? 'Live' : 'In development'}
-                    </span>
-                  </div>
-                  <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed">
-                    {project.description}
-                  </p>
-
-                  <div className="mt-5 flex items-center justify-between">
+                    <p className="text-xs text-white/35 leading-relaxed mb-3">{project.description}</p>
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${tagClass(tag)}`}
-                        >
+                        <span key={tag} className={`text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.04] ${tagColors[tag] ?? 'text-white/40'}`}>
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <div className="flex items-center gap-3 text-muted-foreground">
-                      {project.githubUrl && (
-                        <span className="group-hover:text-foreground transition-colors" title="View source">
-                          <Github className="w-4 h-4" />
-                        </span>
-                      )}
-                      {(project.liveUrl || project.githubUrl) && (
-                        <span className="group-hover:text-foreground transition-colors">
-                          <ArrowUpRight className="w-4 h-4" />
-                        </span>
-                      )}
-                    </div>
                   </div>
-                </div>
-              </a>
+                </a>
+              </TiltCard>
             </motion.div>
           ))}
         </div>
