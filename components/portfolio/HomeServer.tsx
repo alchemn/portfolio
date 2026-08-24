@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Cloud, Bot, Shield } from 'lucide-react';
 
@@ -11,54 +11,161 @@ const services = [
 ];
 
 /* ═══════════════════════════════════════════
-   Typing Terminal
+   Enhanced Typing Terminal
    ═══════════════════════════════════════════ */
-function TypingTerminal() {
-  const [line, setLine] = useState(0);
-  const [char, setChar] = useState(0);
-  const [output, setOutput] = useState<string[]>([]);
 
-  const lines: Array<{ cmd?: string; delay?: number; output?: string[] }> = [
-    { cmd: 'docker ps --format "table"', delay: 40 },
-    { output: ['NAMES        STATUS', 'nextcloud    running', 'cloudflared  running', 'ai-agent     running'] },
-    { cmd: 'curl -s localhost:3000/health', delay: 35 },
-    { output: ['{"status":"healthy","uptime":"99.9%"}'] },
-  ];
+interface TerminalLine {
+  type: 'cmd' | 'output' | 'blank' | 'info' | 'success' | 'warning' | 'error';
+  text: string;
+}
+
+const sequence: TerminalLine[][] = [
+  // Boot sequence
+  [
+    { type: 'info', text: '+----------------------------------------+' },
+    { type: 'info', text: '|  Home Server v2.1 -- Banda Aceh, ID    |' },
+    { type: 'info', text: '|  Kernel: 6.1.0  |  Uptime: 42d 7h     |' },
+    { type: 'info', text: '+----------------------------------------+' },
+    { type: 'blank', text: '' },
+  ],
+  // Docker check
+  [
+    { type: 'cmd', text: 'docker ps --format "table {{.Names}}\t{{.Status}}"' },
+    { type: 'blank', text: '' },
+    { type: 'output', text: 'NAMES          STATUS' },
+    { type: 'success', text: 'nextcloud      Up 42 days' },
+    { type: 'success', text: 'cloudflared    Up 42 days' },
+    { type: 'success', text: 'ai-agent       Up 42 days' },
+    { type: 'success', text: 'nginx-proxy    Up 42 days' },
+    { type: 'blank', text: '' },
+  ],
+  // Health check
+  [
+    { type: 'cmd', text: 'curl -s localhost:3000/health | jq .' },
+    { type: 'blank', text: '' },
+    { type: 'success', text: '{' },
+    { type: 'output', text: '  "status": "healthy",' },
+    { type: 'output', text: '  "uptime": "99.9%",' },
+    { type: 'output', text: '  "services": 4,' },
+    { type: 'success', text: '}' },
+    { type: 'blank', text: '' },
+  ],
+  // System resources
+  [
+    { type: 'cmd', text: 'htop --no-color -n 1 | head -5' },
+    { type: 'blank', text: '' },
+    { type: 'info', text: '+-- CPU: [==========      ] 12%  -- RAM: 2.1 / 8 GB --+' },
+    { type: 'warning', text: '|  PID USER      CPU%  MEM%  COMMAND                    |' },
+    { type: 'output', text: '|  847 root       2.1   1.8  nginx: worker              |' },
+    { type: 'output', text: '| 1204 postgres   1.4   3.2  postgres: nextcloud        |' },
+    { type: 'output', text: '|  932 root       0.8   1.1  node server.js             |' },
+    { type: 'info', text: '+----------------------------------------------------+' },
+    { type: 'blank', text: '' },
+  ],
+  // Disk usage
+  [
+    { type: 'cmd', text: 'df -h / | tail -1' },
+    { type: 'blank', text: '' },
+    { type: 'output', text: '/dev/sda1  480G  127G  329G  28%  /' },
+    { type: 'success', text: 'All systems operational' },
+  ],
+];
+
+const CMD_SPEED = 30;
+const OUTPUT_DELAY = 150;
+const PAUSE_BETWEEN_SEQUENCES = 2000;
+
+function TerminalLineRenderer({ line }: { line: TerminalLine }) {
+  if (line.type === 'blank') return <div className="h-3" />;
+
+  const colors: Record<string, string> = {
+    cmd: 'text-white/70',
+    output: 'text-white/40',
+    info: 'text-blue-400/70',
+    success: 'text-emerald-400/80',
+    warning: 'text-amber-400/70',
+    error: 'text-red-400/70',
+  };
+
+  return (
+    <div className={colors[line.type] ?? 'text-white/40'}>
+      {line.type === 'cmd' && <span className="text-emerald-400/70 mr-2">$</span>}
+      {line.text}
+    </div>
+  );
+}
+
+function TypingTerminal() {
+  const [visibleLines, setVisibleLines] = useState<TerminalLine[]>([]);
+  const [currentSequence, setCurrentSequence] = useState(0);
+  const [currentLine, setCurrentLine] = useState(0);
+  const [currentChar, setCurrentChar] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const resetTerminal = useCallback(() => {
+    setVisibleLines([]);
+    setCurrentSequence(0);
+    setCurrentLine(0);
+    setCurrentChar(0);
+  }, []);
 
   useEffect(() => {
-    if (line >= lines.length) return;
+    if (currentSequence >= sequence.length) {
+      restartTimeoutRef.current = setTimeout(() => {
+        resetTerminal();
+      }, PAUSE_BETWEEN_SEQUENCES);
+      return () => {
+        if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current);
+      };
+    }
 
-    const current = lines[line];
+    const seq = sequence[currentSequence];
 
-    if (current.cmd !== undefined) {
-      if (char < current.cmd.length) {
-        const timer = setTimeout(() => {
-          setChar((c) => c + 1);
-        }, current.delay ?? 40);
-        return () => clearTimeout(timer);
-      } else {
-        // Command done, show output
-        const timer = setTimeout(() => {
-          const nextLine = line + 1;
-          if (nextLine < lines.length && lines[nextLine].output) {
-            setOutput((prev) => [...prev, ...(lines[nextLine].output ?? [])]);
-            setLine(nextLine + 1);
-            setChar(0);
-          } else {
-            setLine(nextLine);
-            setChar(0);
-          }
-        }, 300);
-        return () => clearTimeout(timer);
-      }
-    } else if (current.output) {
+    if (currentLine >= seq.length) {
       const timer = setTimeout(() => {
-        setLine(line + 1);
-        setChar(0);
-      }, 100);
+        setCurrentSequence((s) => s + 1);
+        setCurrentLine(0);
+        setCurrentChar(0);
+      }, OUTPUT_DELAY);
       return () => clearTimeout(timer);
     }
-  }, [line, char, output]);
+
+    const line = seq[currentLine];
+
+    if (line.type === 'cmd') {
+      if (currentChar < line.text.length) {
+        const timer = setTimeout(() => {
+          setCurrentChar((c) => c + 1);
+        }, CMD_SPEED);
+        return () => clearTimeout(timer);
+      } else {
+        const timer = setTimeout(() => {
+          setVisibleLines((prev) => [...prev, line]);
+          setCurrentLine((l) => l + 1);
+          setCurrentChar(0);
+        }, 200);
+        return () => clearTimeout(timer);
+      }
+    } else {
+      const timer = setTimeout(() => {
+        setVisibleLines((prev) => [...prev, line]);
+        setCurrentLine((l) => l + 1);
+      }, OUTPUT_DELAY);
+      return () => clearTimeout(timer);
+    }
+  }, [currentSequence, currentLine, currentChar, resetTerminal]);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [visibleLines, currentChar]);
+
+  const currentSeq = currentSequence < sequence.length ? sequence[currentSequence] : null;
+  const currentCmdLine = currentSeq?.find(
+    (l, i) => i === currentLine && l.type === 'cmd'
+  );
 
   return (
     <div className="rounded-xl border border-white/[0.06] bg-black/40 overflow-hidden">
@@ -66,17 +173,29 @@ function TypingTerminal() {
         <span className="w-2 h-2 rounded-full bg-[#FF5F57]" />
         <span className="w-2 h-2 rounded-full bg-[#FEBC2E]" />
         <span className="w-2 h-2 rounded-full bg-[#28C840]" />
-        <span className="ml-2 text-[10px] text-white/30 font-mono">bash</span>
+        <span className="ml-2 text-[10px] text-white/30 font-mono">bash -- home-server</span>
       </div>
-      <div className="p-4 font-mono text-xs space-y-1 min-h-[140px]">
-        {output.map((line, i) => (
-          <div key={i} className="text-white/40">{line}</div>
+
+      <div
+        ref={containerRef}
+        className="p-4 font-mono text-xs space-y-0.5 min-h-[200px] max-h-[260px] overflow-y-auto scrollbar-hide"
+      >
+        {visibleLines.map((line, i) => (
+          <TerminalLineRenderer key={i} line={line} />
         ))}
-        {line < lines.length && 'cmd' in lines[line] && (
+
+        {currentCmdLine && currentChar > 0 && currentChar <= currentCmdLine.text.length && (
           <div className="flex">
             <span className="text-emerald-400/70 mr-2">$</span>
-            <span className="text-white/60">{lines[line].cmd?.slice(0, char)}</span>
-            <span className="w-1.5 h-3.5 bg-white/40 ml-0.5 animate-pulse" />
+            <span className="text-white/70">{currentCmdLine.text.slice(0, currentChar)}</span>
+            <span className="w-1.5 h-3.5 bg-emerald-400/70 ml-0.5 animate-pulse" />
+          </div>
+        )}
+
+        {currentSequence >= sequence.length && (
+          <div className="flex">
+            <span className="text-emerald-400/70 mr-2">$</span>
+            <span className="w-1.5 h-3.5 bg-emerald-400/70 animate-pulse" />
           </div>
         )}
       </div>
@@ -106,11 +225,10 @@ export default function HomeServer() {
           className="mb-8"
         >
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Home Server</h2>
-          <p className="text-sm text-white/35">Self-managed infrastructure — cloud storage, AI automation, secure remote access.</p>
+          <p className="text-sm text-white/35">Self-managed infrastructure -- cloud storage, AI automation, secure remote access.</p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-4">
-          {/* Terminal */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -120,7 +238,6 @@ export default function HomeServer() {
             <TypingTerminal />
           </motion.div>
 
-          {/* Services + Stats */}
           <motion.div
             variants={container}
             initial="hidden"
@@ -143,7 +260,6 @@ export default function HomeServer() {
               </motion.div>
             ))}
 
-            {/* Stats */}
             <motion.div variants={fadeUp} className="grid grid-cols-3 gap-2 pt-2">
               {[
                 { label: 'CPU', value: '12%' },
