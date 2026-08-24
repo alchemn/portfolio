@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, type RefObject } from 'react';
 import { useMotionValue, useSpring } from 'framer-motion';
 
 interface MagneticEffectOptions {
@@ -7,9 +7,11 @@ interface MagneticEffectOptions {
   intensity?: number;
 }
 
-export function useMagneticEffect(options: MagneticEffectOptions = {}) {
+export function useMagneticEffect<T extends HTMLElement = HTMLElement>(
+  options: MagneticEffectOptions = {}
+) {
   const { stiffness = 200, damping = 20, intensity = 0.15 } = options;
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<T>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const springX = useSpring(x, { stiffness, damping });
@@ -28,7 +30,7 @@ export function useMagneticEffect(options: MagneticEffectOptions = {}) {
   }, [x, y]);
 
   return {
-    ref,
+    ref: ref as RefObject<T>,
     style: { x: springX, y: springY },
     handleMouseMove,
     handleMouseLeave,

@@ -23,7 +23,7 @@ export default function MagneticButton({
   damping,
   intensity,
 }: MagneticButtonProps) {
-  const { ref, style, handleMouseMove, handleMouseLeave } = useMagneticEffect({
+  const { ref, style, handleMouseMove, handleMouseLeave } = useMagneticEffect<HTMLAnchorElement | HTMLButtonElement>({
     stiffness,
     damping,
     intensity,
@@ -34,7 +34,7 @@ export default function MagneticButton({
 
   return (
     <Component
-      ref={ref}
+      ref={ref as any}
       style={style}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
