@@ -1,9 +1,9 @@
 'use client';
 
-import { useRef, type MouseEvent } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ExternalLink, Github } from 'lucide-react';
 import Image from 'next/image';
+import TiltCard from '@/components/ui/tilt-card';
 
 interface Project {
   title: string;
@@ -78,62 +78,7 @@ const tagColors: Record<string, string> = {
   'Payment': 'text-emerald-400',
 };
 
-/* ═══════════════════════════════════════════
-   3D Tilt Card with Shine Effect
-   ═══════════════════════════════════════════ */
-function TiltCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springConfig = { stiffness: 150, damping: 20, mass: 0.5 };
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [8, -8]), springConfig);
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-8, 8]), springConfig);
-  const scale = useSpring(1, { stiffness: 200, damping: 20 });
-  const glareX = useSpring(useTransform(x, [-0.5, 0.5], [100, -100]), springConfig);
-  const glareOpacity = useSpring(0, { stiffness: 200, damping: 20 });
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const xPos = (e.clientX - rect.left - rect.width / 2) / rect.width;
-    const yPos = (e.clientY - rect.top - rect.height / 2) / rect.height;
-    x.set(xPos);
-    y.set(yPos);
-    scale.set(1.02);
-    glareOpacity.set(0.15);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-    scale.set(1);
-    glareOpacity.set(0);
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      style={{ rotateX, rotateY, scale }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className={className}
-    >
-      <div className="relative overflow-hidden">
-        {children}
-        {/* Glare effect */}
-        <motion.div
-          style={{ opacity: glareOpacity }}
-          className="absolute inset-0 pointer-events-none rounded-xl"
-        >
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent"
-            style={{ transform: `translateX(${glareX}%)` }}
-          />
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-}
 
 export default function Projects() {
   return (

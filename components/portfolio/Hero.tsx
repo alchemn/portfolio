@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, type MouseEvent } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
+import MagneticButton from '@/components/ui/magnetic-button';
 
 const socials = [
   { icon: Github, href: 'https://github.com/alchemn', label: 'GitHub' },
@@ -15,72 +15,6 @@ const techStack = [
   'Node.js', 'Express', 'MongoDB', 'PostgreSQL', 'Docker',
   'Figma', 'Git', 'Linux', 'Cloudflare', 'TensorFlow',
 ];
-
-/* ═══════════════════════════════════════════
-   Magnetic Button
-   ═══════════════════════════════════════════ */
-function MagneticBtn({ children, href, className }: { children: React.ReactNode; href: string; className?: string }) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 200, damping: 20 });
-  const springY = useSpring(y, { stiffness: 200, damping: 20 });
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    x.set((e.clientX - rect.left - rect.width / 2) * 0.15);
-    y.set((e.clientY - rect.top - rect.height / 2) * 0.15);
-  };
-
-  return (
-    <motion.a
-      ref={ref}
-      href={href}
-      style={{ x: springX, y: springY }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => { x.set(0); y.set(0); }}
-      whileTap={{ scale: 0.97 }}
-      className={className}
-    >
-      {children}
-    </motion.a>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   Magnetic Social Icon
-   ═══════════════════════════════════════════ */
-function MagneticIcon({ children, href, label }: { children: React.ReactNode; href: string; label: string }) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 300, damping: 20 });
-  const springY = useSpring(y, { stiffness: 300, damping: 20 });
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    x.set((e.clientX - rect.left - rect.width / 2) * 0.3);
-    y.set((e.clientY - rect.top - rect.height / 2) * 0.3);
-  };
-
-  return (
-    <motion.a
-      ref={ref}
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={label}
-      style={{ x: springX, y: springY }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => { x.set(0); y.set(0); }}
-      className="text-white/25 hover:text-white/70 transition-colors"
-    >
-      {children}
-    </motion.a>
-  );
-}
 
 /* ═══════════════════════════════════════════
    Tech Stack Marquee
@@ -152,19 +86,19 @@ export default function Hero() {
           </motion.p>
 
           <motion.div variants={fadeUp} className="flex items-center gap-3">
-            <MagneticBtn
+            <MagneticButton
               href="#projects"
               className="group inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-full bg-white text-black hover:bg-white/90 transition-all"
             >
               View Projects
               <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </MagneticBtn>
-            <MagneticBtn
+            </MagneticButton>
+            <MagneticButton
               href="#contact"
               className="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium rounded-full border border-white/[0.08] hover:border-white/[0.15] transition-all text-white/60"
             >
               Contact
-            </MagneticBtn>
+            </MagneticButton>
           </motion.div>
         </div>
 
@@ -180,9 +114,15 @@ export default function Hero() {
         >
           <div className="flex items-center gap-5">
             {socials.map((social) => (
-              <MagneticIcon key={social.label} href={social.href} label={social.label}>
+              <MagneticButton
+                key={social.label}
+                href={social.href}
+                className="text-white/25 hover:text-white/70 transition-colors"
+                stiffness={300}
+                intensity={0.3}
+              >
                 <social.icon className="w-4 h-4" />
-              </MagneticIcon>
+              </MagneticButton>
             ))}
           </div>
           <div className="flex items-center gap-6 text-[11px] text-white/25 font-mono">

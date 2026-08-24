@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, type MouseEvent } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Code, Database, Layout, Zap } from 'lucide-react';
+import TiltCard from '@/components/ui/tilt-card';
 
 const skills = [
   { icon: Code, title: 'Frontend', items: ['React', 'Next.js', 'TypeScript', 'TanStack', 'Tailwind'] },
@@ -10,66 +10,6 @@ const skills = [
   { icon: Layout, title: 'Design', items: ['Figma', 'UI/UX', 'Design Systems', 'Prototyping'] },
   { icon: Zap, title: 'DevOps', items: ['Docker', 'Linux', 'Git', 'CI/CD', 'Cloudflare'] },
 ];
-
-/* ═══════════════════════════════════════════
-   3D Tilt Card with Glow
-   ═══════════════════════════════════════════ */
-function TiltCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springConfig = { stiffness: 200, damping: 20 };
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [6, -6]), springConfig);
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-6, 6]), springConfig);
-  const glowOpacity = useSpring(0, { stiffness: 200, damping: 20 });
-  const glowX = useSpring(50, { stiffness: 200, damping: 20 });
-  const glowY = useSpring(50, { stiffness: 200, damping: 20 });
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const xPos = (e.clientX - rect.left) / rect.width * 100;
-    const yPos = (e.clientY - rect.top) / rect.height * 100;
-    x.set((e.clientX - rect.left - rect.width / 2) / rect.width);
-    y.set((e.clientY - rect.top - rect.height / 2) / rect.height);
-    glowOpacity.set(0.08);
-    glowX.set(xPos);
-    glowY.set(yPos);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-    glowOpacity.set(0);
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      style={{ rotateX, rotateY }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className={`relative ${className}`}
-    >
-      {/* Glow effect */}
-      <motion.div
-        style={{ opacity: glowOpacity }}
-        className="absolute inset-0 rounded-xl pointer-events-none z-0"
-      >
-        <div
-          className="absolute inset-0 rounded-xl"
-          style={{
-            background: 'radial-gradient(circle at center, rgba(16,185,129,0.3), transparent 70%)',
-            transform: `translate(${glowX.get() - 50}%, ${glowY.get() - 50}%)`,
-          }}
-        />
-      </motion.div>
-      <div className="relative z-10">
-        {children}
-      </div>
-    </motion.div>
-  );
-}
 
 export default function About() {
   return (
@@ -124,7 +64,7 @@ export default function About() {
                   transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
                   viewport={{ once: true }}
                 >
-                  <TiltCard>
+                  <TiltCard showGlare={false}>
                     <div className="p-4 rounded-xl border border-white/[0.06] bg-gradient-to-b from-white/[0.04] to-white/[0.01] hover:border-white/[0.12] transition-colors duration-300 h-full">
                       <div className="flex items-center gap-2.5 mb-3">
                         <skill.icon className="w-4 h-4 text-emerald-400/70" />
